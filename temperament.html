@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест на темперамент</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="index.html">Главная</a>
+            <a href="mbti.html">MBTI</a>
+            <a href="attachment.html">Привязанность</a>
+            <a href="temperament.html">Темперамент</a>
+            <a href="eq-test.html">EQ</a>
+            <a href="burnout-test.html">Выгорание</a>
+        </nav>
+    </header>
+    <main>
+        <h1>🔥💧🌬️🌍 Тест на темперамент</h1>
+        <div id="quiz-area"></div>
+        <div id="result-area" class="result-area" style="display: none;"></div>
+    </main>
+    <footer><p>Учебный проект для колледжа © 2026</p></footer>
+
+    <button class="theme-toggle" onclick="toggleTheme()">🌓 Тёмная тема</button>
+
+    <script>
+        const questions = [
+            { text: "Как вы реагируете на неожиданное препятствие?", 
+              options: ["Бросаюсь решать", "Ищу обходной путь", "Останавливаюсь и думаю", "Расстраиваюсь"],
+              types: ["choleric", "sanguine", "phlegmatic", "melancholic"] },
+            { text: "В компании вы обычно:", 
+              options: ["Душа компании", "Спокойный наблюдатель", "Слушаю больше, чем говорю", "Ухожу в себя"],
+              types: ["sanguine", "phlegmatic", "phlegmatic", "melancholic"] },
+            { text: "Как вы выполняете работу?", 
+              options: ["Быстро и энергично", "Размеренно, но качественно", "Медленно, но тщательно", "Трудно начать"],
+              types: ["choleric", "phlegmatic", "melancholic", "melancholic"] },
+            { text: "Ваше настроение чаще всего:", 
+              options: ["Приподнятое", "Ровное", "Спокойное", "Переменчивое"],
+              types: ["sanguine", "phlegmatic", "phlegmatic", "melancholic"] },
+            { text: "Если вас критикуют, вы:", 
+              options: ["Спорю", "Выслушаю и сделаю выводы", "Обижаюсь", "Очень переживаю"],
+              types: ["choleric", "sanguine", "melancholic", "melancholic"] },
+            { text: "Как вы принимаете решения?", 
+              options: ["Быстро, под влиянием момента", "Взвешенно", "Медленно, но уверенно", "С трудом и сомнениями"],
+              types: ["sanguine", "phlegmatic", "phlegmatic", "melancholic"] },
+            { text: "Ваша работоспособность:", 
+              options: ["Могу работать долго без усталости", "Равномерная", "Требую частых перерывов", "Быстро устаю"],
+              types: ["choleric", "phlegmatic", "sanguine", "melancholic"] },
+            { text: "Как вы переживаете неудачи?", 
+              options: ["Легко", "Анализирую", "Долго помню", "Очень тяжело"],
+              types: ["sanguine", "phlegmatic", "melancholic", "melancholic"] },
+            { text: "Вы предпочитаете темп жизни:", 
+              options: ["Быстрый, активный", "Размеренный", "Спокойный, без спешки", "Тихий, уединённый"],
+              types: ["choleric", "sanguine", "phlegmatic", "melancholic"] }
+        ];
+
+        let currentIndex = 0;
+        let answers = [];
+
+        const temperamentNames = {
+            choleric: "Холерик",
+            sanguine: "Сангвиник",
+            phlegmatic: "Флегматик",
+            melancholic: "Меланхолик"
+        };
+
+        const temperamentDescriptions = {
+            choleric: "Холерик — страстный, энергичный, неуравновешенный тип. Вы быстро действуете, вспыльчивы, но так же быстро отходите. Ваша стихия — преодоление препятствий и лидерство. Старайтесь сдерживать гнев и учитесь дипломатии. Известные холерики: Александр Пушкин, Петр I.",
+            sanguine: "Сангвиник — жизнерадостный, общительный, оптимистичный тип. Вы легко адаптируетесь, обожаете новизну, но можете быть поверхностны. Ваши плюсы: энергичность и позитив. Минусы: иногда не хватает глубины и усидчивости. Известные сангвиники: Наполеон Бонапарт, Моцарт.",
+            phlegmatic: "Флегматик — спокойный, надёжный, уравновешенный тип. Вы не любите суету, работаете размеренно и стабильно. Вас трудно вывести из себя. Ваша сила — терпение и умение доводить дела до конца. Слабость — иногда медлительность. Известные флегматики: Иммануил Кант, Антон Чехов.",
+            melancholic: "Меланхолик — чувствительный, ранимый, творческий тип. Вы глубоко переживаете события, обладаете тонкой душевной организацией. Часто имеете богатый внутренний мир и склонность к искусству. Ваша задача — не зацикливаться на негативе. Известные меланхолики: Николай Гоголь, Фредерик Шопен."
+        };
+
+        function renderQuestion() {
+            if (currentIndex >= questions.length) {
+                showResult();
+                return;
+            }
+            const q = questions[currentIndex];
+            let html = `<div class="question-card">
+                <div class="question-text"><strong>${currentIndex+1}. ${q.text}</strong></div>
+                <div class="options-row">`;
+            for (let i = 0; i < q.options.length; i++) {
+                html += `<div class="opt-btn" data-type="${q.types[i]}">${q.options[i]}</div>`;
+            }
+            html += `</div></div>`;
+            document.getElementById("quiz-area").innerHTML = html;
+
+            document.querySelectorAll(".opt-btn").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    answers.push(btn.dataset.type);
+                    currentIndex++;
+                    renderQuestion();
+                });
+            });
+        }
+
+        function showResult() {
+            let counts = { choleric: 0, sanguine: 0, phlegmatic: 0, melancholic: 0 };
+            for (let type of answers) {
+                counts[type]++;
+            }
+            let maxType = "choleric";
+            let maxCount = counts.choleric;
+            for (let type of ["sanguine", "phlegmatic", "melancholic"]) {
+                if (counts[type] > maxCount) {
+                    maxCount = counts[type];
+                    maxType = type;
+                }
+            }
+            const resultName = temperamentNames[maxType];
+            const resultDesc = temperamentDescriptions[maxType];
+
+            // Сохраняем результат в localStorage
+            localStorage.setItem('lastTemperament', resultName);
+            localStorage.setItem('lastTemperamentDesc', resultDesc);
+
+            document.getElementById("quiz-area").style.display = "none";
+            document.getElementById("result-area").style.display = "block";
+            document.getElementById("result-area").innerHTML = `
+                <h2>Ваш тип темперамента: <strong>${resultName}</strong></h2>
+                <p>${resultDesc}</p>
+                <p><strong>Результаты по шкалам:</strong><br>
+                🔥 Холерик: ${counts.choleric}<br>
+                💧 Сангвиник: ${counts.sanguine}<br>
+                🌍 Флегматик: ${counts.phlegmatic}<br>
+                🌧️ Меланхолик: ${counts.melancholic}</p>
+                <p><small>✅ Результат сохранён. Вы увидите его на главной странице.</small></p>
+                <button onclick="location.reload()">Пройти заново</button>
+            `;
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark');
+            const btn = document.querySelector('.theme-toggle');
+            if (document.body.classList.contains('dark')) {
+                btn.textContent = '☀️ Светлая тема';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                btn.textContent = '🌓 Тёмная тема';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark');
+            document.querySelector('.theme-toggle').textContent = '☀️ Светлая тема';
+        }
+
+        renderQuestion();
+    </script>
+</body>
+</html>
