@@ -15,6 +15,7 @@
             <a href="temperament.html">Темперамент</a>
             <a href="eq-test.html">EQ</a>
             <a href="burnout-test.html">Выгорание</a>
+            <a href="profile.html">📊 Мои результаты</a>
         </nav>
     </header>
     <main>
@@ -22,13 +23,11 @@
         <div id="quiz-area"></div>
         <div id="result-area" class="result-area" style="display: none;"></div>
     </main>
-    <footer><p>Учебный проект для колледжа © 2026</p></footer>
-
-    <!-- Кнопка переключения тёмной темы -->
+    <footer><p>Учебный проект для колледжа © 2025</p></footer>
     <button class="theme-toggle" onclick="toggleTheme()">🌓 Тёмная тема</button>
 
+    <script src="google-sheet.js"></script>
     <script>
-        // ========== ВОПРОСЫ ==========
         const questions = [
             { text: "После долгой работы в компании вы чувствуете прилив энергии.", scale: "ei", leftVal: 0, rightVal: 1, leftText: "Верно", rightText: "Не верно" },
             { text: "Вы предпочитаете работать в тишине и одиночестве.", scale: "ei", leftVal: 1, rightVal: 0, leftText: "Верно", rightText: "Не верно" },
@@ -55,27 +54,25 @@
         let currentIndex = 0;
         let answers = [];
 
-        // ========== ОПИСАНИЯ ТИПОВ ==========
         const typeDescriptions = {
-            "INTJ": "Стратег, архитектор. Вы обладаете аналитическим складом ума, видите системы и закономерности. Предпочитаете работать самостоятельно, ставите долгосрочные цели и достигаете их. Цените компетентность и логику.",
-            "INTP": "Учёный, мыслитель. Вы любознательны, обожаете анализировать теории и искать логические нестыковки. Вам важно понимать, как устроены вещи.",
-            "ENTJ": "Командир, лидер. Вы решительны, амбициозны и умеете организовать любую деятельность. Быстро видите неэффективность и оптимизируете процессы.",
-            "ENTP": "Изобретатель, новатор. Вы генерируете множество идей, любите мозговые штурмы и дискуссии. Вас привлекает новизна и нестандартные решения.",
-            "INFJ": "Советчик, провидец. Вы чутко чувствуете эмоции других, часто предвидите события и исходы. Идеалистичны, стремитесь помогать людям.",
-            "INFP": "Идеалист, миротворец. Вы глубоко цените гармонию, искренность и свои внутренние ценности. Мечтательны, креативны, умеете видеть хорошее в людях.",
-            "ENFJ": "Учитель, наставник. Вы харизматичны, умеете вдохновлять и мотивировать людей. Легко находите подход к разным личностям, чувствуете их потребности.",
-            "ENFP": "Борец, активист. Вы полны энтузиазма, креативны и открыты новым возможностям. Обожаете людей, идеи и приключения.",
-            "ISTJ": "Инспектор, логист. Вы ответственны, практичны и надёжны. Цените порядок, факты и чёткие правила. Доводите начатое до конца.",
-            "ISFJ": "Хранитель, защитник. Вы заботливы, терпеливы и преданны. Обладаете отличной памятью на детали и факты, важные для близких.",
-            "ESTJ": "Управляющий, администратор. Вы энергичны, прямолинейны и практичны. Умеете организовать работу и следить за выполнением задач.",
-            "ESFJ": "Консул, энтузиаст. Вы дружелюбны, общительны и очень ответственны. Цените традиции и гармонию в отношениях.",
-            "ISTP": "Мастер, виртуоз. Вы спокойны, независимы и практичны. Любите разбираться в том, как работают механизмы.",
-            "ISFP": "Художник, исследователь. Вы чувствительны, скромны и обладаете тонким вкусом. Живёте настоящим моментом и цените гармонию, красоту вокруг.",
-            "ESTP": "Делец, предприниматель. Вы энергичны, смелы и практичны. Обожаете риск, адреналин и конкретные результаты.",
-            "ESFP": "Аниматор, исполнитель. Вы жизнерадостны, спонтанны и обожаете быть в центре внимания. Умеете радоваться жизни и заражать этим других."
+            "INTJ": "Стратег, архитектор. Вы обладаете аналитическим складом ума, видите системы и закономерности.",
+            "INTP": "Учёный, мыслитель. Вы любознательны, обожаете анализировать теории.",
+            "ENTJ": "Командир, лидер. Вы решительны, амбициозны и умеете организовать любую деятельность.",
+            "ENTP": "Изобретатель, новатор. Вы генерируете множество идей, любите мозговые штурмы.",
+            "INFJ": "Советчик, провидец. Вы чутко чувствуете эмоции других, стремитесь помогать людям.",
+            "INFP": "Идеалист, миротворец. Вы глубоко цените гармонию и свои внутренние ценности.",
+            "ENFJ": "Учитель, наставник. Вы харизматичны, умеете вдохновлять и мотивировать людей.",
+            "ENFP": "Борец, активист. Вы полны энтузиазма, креативны и открыты новым возможностям.",
+            "ISTJ": "Инспектор, логист. Вы ответственны, практичны и надёжны.",
+            "ISFJ": "Хранитель, защитник. Вы заботливы, терпеливы и преданны.",
+            "ESTJ": "Управляющий, администратор. Вы энергичны, прямолинейны и практичны.",
+            "ESFJ": "Консул, энтузиаст. Вы дружелюбны, общительны и очень ответственны.",
+            "ISTP": "Мастер, виртуоз. Вы спокойны, независимы и практичны.",
+            "ISFP": "Художник, исследователь. Вы чувствительны, скромны и обладаете тонким вкусом.",
+            "ESTP": "Делец, предприниматель. Вы энергичны, смелы и практичны.",
+            "ESFP": "Аниматор, исполнитель. Вы жизнерадостны, спонтанны и обожаете быть в центре внимания."
         };
 
-        // ========== ОТОБРАЖЕНИЕ ВОПРОСА ==========
         function renderQuestion() {
             if (currentIndex >= questions.length) {
                 showResult();
@@ -83,7 +80,7 @@
             }
             const q = questions[currentIndex];
             let html = `<div class="question-card">
-                <div class="question-text"><strong>${currentIndex+1}. ${q.text}</strong></div>
+                <strong>${currentIndex+1}. ${q.text}</strong>
                 <div class="options-row">
                     <div class="opt-btn" data-val="${q.leftVal}">${q.leftText}</div>
                     <div class="opt-btn" data-val="${q.rightVal}">${q.rightText}</div>
@@ -92,16 +89,14 @@
             document.getElementById("quiz-area").innerHTML = html;
 
             document.querySelectorAll(".opt-btn").forEach(btn => {
-                btn.addEventListener("click", (e) => {
-                    const val = parseInt(btn.dataset.val);
-                    answers.push(val);
+                btn.addEventListener("click", () => {
+                    answers.push(parseInt(btn.dataset.val));
                     currentIndex++;
                     renderQuestion();
                 });
             });
         }
 
-        // ========== ПОДСЧЁТ ТИПА ==========
         function calculateType() {
             let sumEI = 0, sumSN = 0, sumTF = 0, sumJP = 0;
             for (let i = 0; i < answers.length; i++) {
@@ -112,33 +107,40 @@
                 if (scale === "tf") sumTF += val;
                 if (scale === "jp") sumJP += val;
             }
-            const eiRes = sumEI > 2.5 ? "I" : "E";
-            const snRes = sumSN > 2.5 ? "N" : "S";
-            const tfRes = sumTF > 2.5 ? "F" : "T";
-            const jpRes = sumJP > 2.5 ? "P" : "J";
-            return eiRes + snRes + tfRes + jpRes;
+            return (sumEI > 2.5 ? "I" : "E") + (sumSN > 2.5 ? "N" : "S") + (sumTF > 2.5 ? "F" : "T") + (sumJP > 2.5 ? "P" : "J");
         }
 
-        // ========== ПОКАЗ РЕЗУЛЬТАТА С СОХРАНЕНИЕМ ==========
         function showResult() {
             const type = calculateType();
             const desc = typeDescriptions[type] || "Изучайте себя глубже!";
             
-            // Сохраняем результат в localStorage
             localStorage.setItem('lastMBTI', type);
             localStorage.setItem('lastMBTIdesc', desc);
+            
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            if (user) {
+                if (!user.results) user.results = {};
+                user.results.mbti = type;
+                user.results.mbtiDesc = desc;
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                
+                // Отправка в Google Sheets
+                if (typeof sendTestResult === 'function') {
+                    sendTestResult(user.name, user.age, user.gender, "MBTI (16 типов)", type, desc);
+                }
+            }
             
             document.getElementById("quiz-area").style.display = "none";
             document.getElementById("result-area").style.display = "block";
             document.getElementById("result-area").innerHTML = `
                 <div class="type-name">Ваш тип: ${type}</div>
                 <p>${desc}</p>
-                <p><small>✅ Результат сохранён. Вы увидите его на главной странице.</small></p>
+                <p><small>✅ Результат сохранён в вашем профиле и отправлен в Google Таблицу.</small></p>
                 <button onclick="location.reload()">Пройти заново</button>
+                <a href="index.html" class="button" style="margin-left: 1rem;">🏠 На главную</a>
             `;
         }
 
-        // ========== ТЁМНАЯ ТЕМА ==========
         function toggleTheme() {
             document.body.classList.toggle('dark');
             const btn = document.querySelector('.theme-toggle');
@@ -151,14 +153,12 @@
             }
         }
 
-        // Загрузка сохранённой темы
         const savedTheme = localStorage.getItem('theme');
         if (savedTheme === 'dark') {
             document.body.classList.add('dark');
             document.querySelector('.theme-toggle').textContent = '☀️ Светлая тема';
         }
 
-        // ЗАПУСК ТЕСТА
         renderQuestion();
     </script>
 </body>

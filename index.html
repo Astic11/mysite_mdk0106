@@ -15,12 +15,14 @@
             margin-bottom: 2rem;
         }
         .hero h1 { color: white; font-size: 2.5rem; margin-bottom: 0.5rem; }
+        
         .cards-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
             gap: 1.5rem;
             margin: 2rem 0;
         }
+        
         .test-card {
             background: var(--card-bg-solid);
             border-radius: 24px;
@@ -32,10 +34,12 @@
             display: block;
             border: 1px solid var(--border-color);
         }
+        
         .test-card:hover { transform: translateY(-8px); box-shadow: 0 20px 30px -10px rgba(0,0,0,0.2); }
         .test-icon { font-size: 3rem; margin-bottom: 1rem; }
         .test-card h3 { margin: 0.5rem 0; color: #2c3e66; }
         body.dark .test-card h3 { color: #8ab3cf; }
+        
         .fact-section {
             background: var(--fact-bg);
             border-radius: 24px;
@@ -44,7 +48,9 @@
             text-align: center;
             backdrop-filter: blur(4px);
         }
+        
         .fact-text { font-size: 1.2rem; font-style: italic; margin: 1rem 0; color: var(--text-color); }
+        
         .random-test-btn {
             background: linear-gradient(135deg, #667eea, #764ba2);
             border: none;
@@ -54,14 +60,21 @@
             display: inline-block;
             width: auto;
         }
-        .saved-result-section {
-            background: var(--card-bg-solid);
+        
+        .user-greeting {
+            background: linear-gradient(135deg, #667eea20, #764ba220);
             border-radius: 24px;
-            padding: 1rem;
+            padding: 1rem 1.5rem;
             margin-bottom: 2rem;
-            text-align: center;
-            border: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
         }
+        
+        .logout-btn { background: #e74c3c; padding: 0.5rem 1rem; border: none; border-radius: 40px; color: white; cursor: pointer; }
+        .profile-link { background: #2c3e66; padding: 0.5rem 1rem; border-radius: 40px; color: white; text-decoration: none; margin-right: 1rem; }
+        .greeting-buttons { display: flex; gap: 0.5rem; align-items: center; }
     </style>
 </head>
 <body>
@@ -73,17 +86,24 @@
             <a href="temperament.html">Темперамент</a>
             <a href="eq-test.html">EQ</a>
             <a href="burnout-test.html">Выгорание</a>
+            <a href="profile.html">📊 Мои результаты</a>
         </nav>
     </header>
+    
     <main>
+        <div id="userGreeting" class="user-greeting" style="display: none;">
+            <div id="userInfo"></div>
+            <div class="greeting-buttons">
+                <a href="profile.html" class="profile-link">📊 Мои результаты</a>
+                <button class="logout-btn" onclick="logout()">🚪 Выйти</button>
+            </div>
+        </div>
+        
         <div class="hero">
             <h1>🧠 Узнай себя</h1>
             <p>Пройди тесты, открой новые грани своей личности</p>
         </div>
-
-        <!-- Блок с сохранённым результатом MBTI -->
-        <div id="saved-result" class="saved-result-section" style="display: none;"></div>
-
+        
         <div class="cards-grid">
             <a href="mbti.html" class="test-card"><div class="test-icon">🔍</div><h3>MBTI</h3><p>16 типов личности</p></a>
             <a href="attachment.html" class="test-card"><div class="test-icon">❤️</div><h3>Стиль привязанности</h3><p>Как ты строишь отношения</p></a>
@@ -91,20 +111,19 @@
             <a href="eq-test.html" class="test-card"><div class="test-icon">🎭</div><h3>Эмоциональный интеллект (EQ)</h3><p>Как ты понимаешь эмоции</p></a>
             <a href="burnout-test.html" class="test-card"><div class="test-icon">⚠️</div><h3>Эмоциональное выгорание</h3><p>Проверь свой ресурс</p></a>
         </div>
-
+        
         <div class="fact-section">
             <h3>📖 Психологический факт дня</h3>
             <div class="fact-text" id="factDisplay">Загрузка...</div>
             <button class="refresh-fact" onclick="showRandomFact()">🔄 Другой факт</button>
         </div>
-
+        
         <div style="text-align: center;">
             <button class="random-test-btn" onclick="randomTest()">🎲 Случайный тест</button>
         </div>
     </main>
-    <footer><p>Учебный проект для колледжа © 2026</p></footer>
-
-    <!-- Кнопка переключения темы -->
+    
+    <footer><p>Учебный проект для колледжа © 2025</p></footer>
     <button class="theme-toggle" onclick="toggleTheme()">🌓 Тёмная тема</button>
 
     <script>
@@ -120,18 +139,34 @@
             "Прогулки на природе в течение 20 минут снижают уровень стресса.",
             "Самодисциплина важнее IQ для достижения успеха."
         ];
-
+        
         function showRandomFact() {
             const randomIndex = Math.floor(Math.random() * facts.length);
             document.getElementById("factDisplay").textContent = facts[randomIndex];
         }
-
+        
         function randomTest() {
             const tests = ["mbti.html", "attachment.html", "temperament.html", "eq-test.html", "burnout-test.html"];
             window.location.href = tests[Math.floor(Math.random() * tests.length)];
         }
-
-        // Тёмная тема
+        
+        function loadUserData() {
+            const isRegistered = localStorage.getItem('isRegistered');
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            if (isRegistered === 'true' && user) {
+                document.getElementById('userGreeting').style.display = 'flex';
+                document.getElementById('userInfo').innerHTML = `👋 <strong>${user.name}</strong>, ${user.age} лет ${user.gender ? '· ' + user.gender : ''}`;
+            } else {
+                window.location.href = 'register.html';
+            }
+        }
+        
+        function logout() {
+            localStorage.removeItem('isRegistered');
+            localStorage.removeItem('currentUser');
+            window.location.href = 'register.html';
+        }
+        
         function toggleTheme() {
             document.body.classList.toggle('dark');
             const btn = document.querySelector('.theme-toggle');
@@ -143,27 +178,14 @@
                 localStorage.setItem('theme', 'light');
             }
         }
-
-        // Загрузка сохранённой темы
+        
         const savedTheme = localStorage.getItem('theme');
         if (savedTheme === 'dark') {
             document.body.classList.add('dark');
             document.querySelector('.theme-toggle').textContent = '☀️ Светлая тема';
         }
-
-        // Загрузка сохранённого результата MBTI
-        const savedType = localStorage.getItem('lastMBTI');
-        const savedDesc = localStorage.getItem('lastMBTIdesc');
-        if (savedType && savedDesc) {
-            const savedDiv = document.getElementById('saved-result');
-            savedDiv.style.display = 'block';
-            savedDiv.innerHTML = `
-                <strong>📊 Ваш последний результат MBTI:</strong> ${savedType}<br>
-                <small>${savedDesc.substring(0, 120)}...</small><br>
-                <a href="mbti.html" style="color: #4a6fa5;">Пройти заново →</a>
-            `;
-        }
-
+        
+        loadUserData();
         showRandomFact();
     </script>
 </body>

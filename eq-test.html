@@ -15,6 +15,7 @@
             <a href="temperament.html">Темперамент</a>
             <a href="eq-test.html">EQ</a>
             <a href="burnout-test.html">Выгорание</a>
+            <a href="profile.html">📊 Мои результаты</a>
         </nav>
     </header>
     <main>
@@ -22,10 +23,10 @@
         <div id="quiz-area"></div>
         <div id="result-area" class="result-area" style="display: none;"></div>
     </main>
-    <footer><p>Учебный проект для колледжа © 2026</p></footer>
-
+    <footer><p>Учебный проект для колледжа © 2025</p></footer>
     <button class="theme-toggle" onclick="toggleTheme()">🌓 Тёмная тема</button>
 
+    <script src="google-sheet.js"></script>
     <script>
         const questions = [
             { text: "Я легко понимаю, что чувствуют другие люди.", reverse: false },
@@ -49,17 +50,13 @@
                 return;
             }
             const q = questions[currentIndex];
-            let html = `<div class="question-card">
-                <div class="question-text"><strong>${currentIndex+1}. ${q.text}</strong></div>
-                <div class="options-row">
-                    <div class="opt-btn" data-score="1">1 - Совсем не согласен</div>
-                    <div class="opt-btn" data-score="2">2</div>
-                    <div class="opt-btn" data-score="3">3 - Нейтрально</div>
-                    <div class="opt-btn" data-score="4">4</div>
-                    <div class="opt-btn" data-score="5">5 - Полностью согласен</div>
-                </div>
-            </div>`;
+            let html = `<div class="question-card"><strong>${currentIndex+1}. ${q.text}</strong><div class="options-row">`;
+            for (let i = 1; i <= 5; i++) {
+                html += `<div class="opt-btn" data-score="${i}">${i}</div>`;
+            }
+            html += `</div></div>`;
             document.getElementById("quiz-area").innerHTML = html;
+
             document.querySelectorAll(".opt-btn").forEach(btn => {
                 btn.addEventListener("click", () => {
                     let score = parseInt(btn.dataset.score);
@@ -73,36 +70,35 @@
 
         function showResult() {
             let total = answers.reduce((a,b) => a+b, 0);
-            let maxScore = questions.length * 5;
-            let percent = (total / maxScore * 100).toFixed(0);
-            let level = "";
-            let description = "";
-            if (percent >= 80) {
-                level = "Очень высокий";
-                description = "Вы отлично понимаете себя и других, умеете управлять эмоциями. Это редкий дар! Продолжайте развивать эмпатию.";
-            } else if (percent >= 60) {
-                level = "Высокий";
-                description = "У вас хороший эмоциональный интеллект. Вы чувствуете людей и умеете справляться с большинством эмоциональных ситуаций.";
-            } else if (percent >= 40) {
-                level = "Средний";
-                description = "У вас есть потенциал для роста. Попробуйте практиковать осознанность и активное слушание — это поможет.";
-            } else {
-                level = "Низкий";
-                description = "Возможно, вам трудно распознавать и управлять эмоциями. Работа над собой и консультации с психологом могут быть полезны.";
-            }
-
-            // Сохраняем результат в localStorage
-            localStorage.setItem('lastEQ', `Уровень: ${level} (${percent}%)`);
+            let percent = (total / 50 * 100).toFixed(0);
+            let level = percent >= 80 ? "Очень высокий" : percent >= 60 ? "Высокий" : percent >= 40 ? "Средний" : "Низкий";
+            let description = percent >= 80 ? "Вы отлично понимаете себя и других!" : percent >= 60 ? "Хороший уровень, продолжайте развивать эмпатию." : percent >= 40 ? "Есть потенциал для роста." : "Рекомендуется работа над эмоциональной осознанностью.";
+            
+            const resultText = `Уровень: ${level} (${percent}%)`;
+            localStorage.setItem('lastEQ', resultText);
             localStorage.setItem('lastEQDesc', description);
-
+            
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            if (user) {
+                if (!user.results) user.results = {};
+                user.results.eq = resultText;
+                user.results.eqDesc = description;
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                
+                if (typeof sendTestResult === 'function') {
+                    sendTestResult(user.name, user.age, user.gender, "Эмоциональный интеллект (EQ)", level, `${percent}% - ${description}`);
+                }
+            }
+            
             document.getElementById("quiz-area").style.display = "none";
             document.getElementById("result-area").style.display = "block";
             document.getElementById("result-area").innerHTML = `
                 <h2>Ваш уровень EQ: <strong>${level}</strong></h2>
-                <p>Вы набрали ${total} баллов из ${maxScore} (${percent}%)</p>
+                <p>Вы набрали ${total} из 50 баллов (${percent}%)</p>
                 <p>${description}</p>
-                <p><small>✅ Результат сохранён. Вы увидите его на главной странице.</small></p>
+                <p><small>✅ Результат сохранён в вашем профиле и отправлен в Google Таблицу.</small></p>
                 <button onclick="location.reload()">Пройти заново</button>
+                <a href="index.html" class="button" style="margin-left: 1rem;">🏠 На главную</a>
             `;
         }
 

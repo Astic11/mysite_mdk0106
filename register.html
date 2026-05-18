@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация | Психотест</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .register-container { max-width: 500px; margin: 0 auto; text-align: center; }
+        .register-form { display: flex; flex-direction: column; gap: 1.5rem; margin-top: 2rem; }
+        .form-group { text-align: left; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: bold; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 0.8rem; border-radius: 12px; border: 1px solid #ccc;
+            font-size: 1rem; background: var(--card-bg-solid); color: var(--text-color);
+        }
+        .register-btn { background: linear-gradient(135deg, #667eea, #764ba2); padding: 1rem; font-size: 1.2rem; border: none; border-radius: 40px; color: white; cursor: pointer; }
+        .error-message { color: #e74c3c; font-size: 0.9rem; margin-top: 0.5rem; display: none; }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="index.html">Главная</a>
+            <a href="mbti.html">MBTI</a>
+            <a href="attachment.html">Привязанность</a>
+            <a href="temperament.html">Темперамент</a>
+            <a href="eq-test.html">EQ</a>
+            <a href="burnout-test.html">Выгорание</a>
+        </nav>
+    </header>
+    <main>
+        <div class="register-container">
+            <h1>📝 Добро пожаловать!</h1>
+            <p>Представьтесь, пожалуйста, чтобы сохранить ваши результаты</p>
+            
+            <div class="register-form">
+                <div class="form-group">
+                    <label>👤 Ваше имя</label>
+                    <input type="text" id="userName" placeholder="Например: Алексей" maxlength="50">
+                </div>
+                <div class="form-group">
+                    <label>🎂 Ваш возраст</label>
+                    <input type="number" id="userAge" placeholder="Например: 19" min="1" max="120">
+                </div>
+                <div class="form-group">
+                    <label>⚧ Пол (необязательно)</label>
+                    <select id="userGender">
+                        <option value="">Не указано</option>
+                        <option value="Мужской">Мужской</option>
+                        <option value="Женский">Женский</option>
+                    </select>
+                </div>
+                <div id="errorMessage" class="error-message"></div>
+                <button class="register-btn" onclick="registerUser()">🚀 Начать тестирование →</button>
+            </div>
+        </div>
+    </main>
+    <footer><p>Учебный проект для колледжа © 2025</p></footer>
+    <button class="theme-toggle" onclick="toggleTheme()">🌓 Тёмная тема</button>
+
+    <script src="google-sheet.js"></script>
+    <script>
+        function registerUser() {
+            const name = document.getElementById('userName').value.trim();
+            const age = document.getElementById('userAge').value.trim();
+            const gender = document.getElementById('userGender').value;
+            
+            if (name === '') { showError('Введите ваше имя'); return; }
+            if (age === '') { showError('Введите ваш возраст'); return; }
+            if (isNaN(age) || age < 1 || age > 120) { showError('Введите корректный возраст (1-120 лет)'); return; }
+            
+            const user = {
+                name: name, age: parseInt(age), gender: gender,
+                registeredAt: new Date().toLocaleString(),
+                results: {}
+            };
+            
+            localStorage.setItem('currentUser', JSON.stringify(user));
+            localStorage.setItem('isRegistered', 'true');
+            
+            // Отправка в Google Sheets
+            if (typeof sendRegistration === 'function') {
+                sendRegistration(name, age, gender);
+            }
+            
+            window.location.href = 'index.html';
+        }
+        
+        function showError(msg) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = `⚠️ ${msg}`;
+            errorDiv.style.display = 'block';
+            setTimeout(() => { errorDiv.style.display = 'none'; }, 3000);
+        }
+        
+        if (localStorage.getItem('isRegistered') === 'true') {
+            window.location.href = 'index.html';
+        }
+        
+        function toggleTheme() {
+            document.body.classList.toggle('dark');
+            const btn = document.querySelector('.theme-toggle');
+            if (document.body.classList.contains('dark')) {
+                btn.textContent = '☀️ Светлая тема';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                btn.textContent = '🌓 Тёмная тема';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+        
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark');
+            document.querySelector('.theme-toggle').textContent = '☀️ Светлая тема';
+        }
+    </script>
+</body>
+</html>

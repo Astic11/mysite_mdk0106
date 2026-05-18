@@ -4,7 +4,6 @@
     box-sizing: border-box;
 }
 
-/* Светлая тема (по умолчанию) */
 :root {
     --bg-gradient-start: #d4dfef;
     --bg-gradient-middle: #c8d5e8;
@@ -12,7 +11,6 @@
     --card-bg: rgba(255, 255, 255, 0.94);
     --text-color: #1e2a3e;
     --header-bg: rgba(44, 62, 102, 0.95);
-    --nav-link: white;
     --card-bg-solid: white;
     --border-color: rgba(0,0,0,0.05);
     --btn-bg: #2c3e66;
@@ -22,7 +20,6 @@
     --result-bg: linear-gradient(135deg, #eef2fa, #e8edf5);
 }
 
-/* Тёмная тема */
 body.dark {
     --bg-gradient-start: #1a1a2e;
     --bg-gradient-middle: #16213e;
@@ -30,7 +27,6 @@ body.dark {
     --card-bg: rgba(30, 30, 50, 0.95);
     --text-color: #e0e0e0;
     --header-bg: rgba(10, 15, 30, 0.95);
-    --nav-link: #ddd;
     --card-bg-solid: #1e1e2e;
     --border-color: rgba(255,255,255,0.1);
     --btn-bg: #4a6fa5;
@@ -68,11 +64,10 @@ header {
     position: sticky;
     top: 0;
     z-index: 100;
-    transition: background 0.3s;
 }
 
 nav a {
-    color: var(--nav-link);
+    color: white;
     margin: 0 1rem;
     text-decoration: none;
     font-weight: 500;
@@ -85,7 +80,6 @@ nav a:hover {
     transform: translateY(-2px);
 }
 
-/* Кнопка переключения темы */
 .theme-toggle {
     position: fixed;
     bottom: 20px;
@@ -97,14 +91,7 @@ nav a:hover {
     padding: 12px 20px;
     cursor: pointer;
     z-index: 1000;
-    font-size: 1rem;
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    transition: all 0.3s;
-}
-
-.theme-toggle:hover {
-    transform: scale(1.05);
-    background: var(--btn-hover);
 }
 
 main {
@@ -117,7 +104,6 @@ main {
     border-radius: 32px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
     min-height: 60vh;
-    transition: background 0.3s;
 }
 
 h1 {
@@ -131,13 +117,6 @@ body.dark h1 {
     color: #8ab3cf;
 }
 
-ul {
-    list-style: none;
-    padding: 0;
-}
-li {
-    margin: 1rem 0;
-}
 .button {
     display: inline-block;
     background: var(--btn-bg);
@@ -148,10 +127,10 @@ li {
     font-weight: bold;
     transition: all 0.3s;
 }
+
 .button:hover {
     background: var(--btn-hover);
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
 }
 
 footer {
@@ -159,55 +138,6 @@ footer {
     padding: 1.5rem;
     background: var(--footer-bg);
     margin-top: 2rem;
-    transition: background 0.3s;
-}
-
-.cards-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 1.5rem;
-    margin: 2rem 0;
-}
-
-.test-card {
-    background: var(--card-bg-solid);
-    border-radius: 24px;
-    padding: 1.5rem;
-    transition: all 0.3s ease;
-    text-align: center;
-    text-decoration: none;
-    color: var(--text-color);
-    display: block;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    border: 1px solid var(--border-color);
-}
-
-.test-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 20px 30px -10px rgba(0,0,0,0.2);
-}
-
-.test-icon {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-}
-
-.test-card h3 {
-    margin: 0.5rem 0;
-    color: #2c3e66;
-}
-
-body.dark .test-card h3 {
-    color: #8ab3cf;
-}
-
-.test-card p {
-    font-size: 0.9rem;
-    color: #555;
-}
-
-body.dark .test-card p {
-    color: #aaa;
 }
 
 .question-card {
@@ -234,8 +164,6 @@ body.dark .test-card p {
     cursor: pointer;
     transition: all 0.2s;
     text-align: center;
-    font-size: 0.95rem;
-    color: #1e2a3e;
 }
 
 body.dark .opt-btn, body.dark .score-btn {
@@ -246,13 +174,7 @@ body.dark .opt-btn, body.dark .score-btn {
 
 .opt-btn:hover, .score-btn:hover {
     background: #e0e7ff;
-    border-color: #2c3e66;
     transform: scale(1.02);
-}
-
-body.dark .opt-btn:hover, body.dark .score-btn:hover {
-    background: #4a6fa5;
-    border-color: #8ab3cf;
 }
 
 .result-area {
@@ -270,12 +192,6 @@ button {
     border: none;
     border-radius: 40px;
     cursor: pointer;
-    transition: all 0.2s;
-}
-
-button:hover {
-    background: var(--btn-hover);
-    transform: scale(1.02);
 }
 
 .type-name {
@@ -287,41 +203,4 @@ button:hover {
 
 body.dark .type-name {
     color: #8ab3cf;
-}
-
-.fact-section {
-    background: var(--fact-bg);
-    border-radius: 24px;
-    padding: 1.5rem;
-    margin: 2rem 0;
-    text-align: center;
-    backdrop-filter: blur(4px);
-    transition: background 0.3s;
-}
-
-.fact-text {
-    font-size: 1.2rem;
-    font-style: italic;
-    margin: 1rem 0;
-    color: var(--text-color);
-}
-
-.random-test-btn {
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    border: none;
-    padding: 1rem 2rem;
-    font-size: 1.1rem;
-    margin: 1rem auto;
-    display: inline-block;
-    width: auto;
-}
-
-/* Секция сохранённого результата */
-.saved-result-section {
-    background: var(--card-bg-solid);
-    border-radius: 24px;
-    padding: 1rem;
-    margin-bottom: 2rem;
-    text-align: center;
-    border: 1px solid var(--border-color);
 }

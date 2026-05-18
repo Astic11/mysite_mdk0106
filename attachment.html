@@ -15,6 +15,7 @@
             <a href="temperament.html">Темперамент</a>
             <a href="eq-test.html">EQ</a>
             <a href="burnout-test.html">Выгорание</a>
+            <a href="profile.html">📊 Мои результаты</a>
         </nav>
     </header>
     <main>
@@ -22,10 +23,10 @@
         <div id="quiz-area"></div>
         <div id="result-area" class="result-area" style="display: none;"></div>
     </main>
-    <footer><p>Учебный проект для колледжа © 2026</p></footer>
-
+    <footer><p>Учебный проект для колледжа © 2025</p></footer>
     <button class="theme-toggle" onclick="toggleTheme()">🌓 Тёмная тема</button>
 
+    <script src="google-sheet.js"></script>
     <script>
         const questions = [
             { text: "Мне легко доверять людям и полагаться на них.", scale: 0 },
@@ -46,10 +47,10 @@
         let answers = [];
 
         const descriptions = {
-            "Надёжный": "Надёжный стиль привязанности — это здоровый тип отношений с собой и другими. Вы комфортно чувствуете себя как в близости, так и на расстоянии. Вы умеете доверять, не боитесь быть покинутым, способны просить о поддержке и оказывать её другим. Люди с надёжным стилем обычно имеют устойчивую самооценку и строят долгосрочные гармоничные отношения.",
-            "Тревожный": "Тревожный стиль привязанности характеризуется сильным страхом быть отвергнутым или покинутым. Вы часто нуждаетесь в постоянных подтверждениях любви и внимания со стороны партнёра. Может казаться, что вас недостаточно ценят, даже если это не так. Вы склонны к ревности, навязчивым мыслям об отношениях и перепадам настроения.",
-            "Избегающий": "Избегающий стиль привязанности проявляется в стремлении к независимости и дистанции в отношениях. Вы предпочитаете полагаться только на себя, избегаете сильной эмоциональной близости и проявления уязвимости. Вас могут считать холодным или отстранённым, но внутри вы просто боитесь, что близость приведёт к потере контроля или боли.",
-            "Дезорганизованный": "Дезорганизованный стиль привязанности — самый сложный тип. Вам одновременно хочется близости и страшно её, вы то стремитесь к партнёру, то резко отталкиваете его. Ваше поведение в отношениях может быть непредсказуемым как для других, так и для вас самих. Часто этот стиль формируется в результате травматичного опыта."
+            "Надёжный": "Надёжный стиль привязанности — здоровый тип отношений. Вы комфортно чувствуете себя в близости и на расстоянии, умеете доверять и строить гармоничные отношения.",
+            "Тревожный": "Тревожный стиль — вы часто боитесь быть отвергнутым, нуждаетесь в постоянных подтверждениях любви. Работа над самооценкой поможет вам чувствовать себя увереннее.",
+            "Избегающий": "Избегающий стиль — вы предпочитаете независимость и дистанцию, боитесь сильной близости. Постепенное открытие людям улучшит качество отношений.",
+            "Дезорганизованный": "Дезорганизованный стиль — вам одновременно хочется близости и страшно её. Рекомендуется поддержка психолога для выстраивания стабильных отношений."
         };
 
         function renderQuestion() {
@@ -59,9 +60,9 @@
             }
             const q = questions[currentIndex];
             let html = `<div class="question-card">
-                <div class="question-text"><strong>${currentIndex+1}. ${q.text}</strong></div>
-                <div>Оцените от 1 (абсолютно не согласен) до 5 (полностью согласен):</div>
-                <div class="options-row" id="buttons-row">`;
+                <strong>${currentIndex+1}. ${q.text}</strong>
+                <div>Оцените от 1 (не согласен) до 5 (согласен):</div>
+                <div class="options-row">`;
             for (let i = 1; i <= 5; i++) {
                 html += `<div class="opt-btn" data-score="${i}">${i}</div>`;
             }
@@ -69,9 +70,8 @@
             document.getElementById("quiz-area").innerHTML = html;
 
             document.querySelectorAll(".opt-btn").forEach(btn => {
-                btn.addEventListener("click", (e) => {
-                    const score = parseInt(btn.dataset.score);
-                    answers.push(score);
+                btn.addEventListener("click", () => {
+                    answers.push(parseInt(btn.dataset.score));
                     currentIndex++;
                     renderQuestion();
                 });
@@ -79,38 +79,43 @@
         }
 
         function showResult() {
-            let sums = [0, 0, 0, 0];
-            let counts = [0, 0, 0, 0];
+            let sums = [0,0,0,0], counts = [0,0,0,0];
             for (let i = 0; i < questions.length; i++) {
-                let scale = questions[i].scale;
-                let val = answers[i];
-                sums[scale] += val;
-                counts[scale]++;
+                sums[questions[i].scale] += answers[i];
+                counts[questions[i].scale]++;
             }
-            let averages = sums.map((s, idx) => s / counts[idx]);
-            let maxIndex = 0;
-            for (let i = 1; i < averages.length; i++) {
-                if (averages[i] > averages[maxIndex]) maxIndex = i;
-            }
+            let averages = sums.map((s,i) => s/counts[i]);
+            let maxIndex = averages.indexOf(Math.max(...averages));
             const styleNames = ["Надёжный", "Тревожный", "Избегающий", "Дезорганизованный"];
             const resultStyle = styleNames[maxIndex];
             const resultDesc = descriptions[resultStyle];
-
-            // Сохраняем результат в localStorage
+            
             localStorage.setItem('lastAttachment', resultStyle);
             localStorage.setItem('lastAttachmentDesc', resultDesc);
-
+            
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            if (user) {
+                if (!user.results) user.results = {};
+                user.results.attachment = resultStyle;
+                user.results.attachmentDesc = resultDesc;
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                
+                if (typeof sendTestResult === 'function') {
+                    sendTestResult(user.name, user.age, user.gender, "Стиль привязанности", resultStyle, resultDesc);
+                }
+            }
+            
             document.getElementById("quiz-area").style.display = "none";
             document.getElementById("result-area").style.display = "block";
             document.getElementById("result-area").innerHTML = `
                 <h2>Ваш стиль привязанности: <strong>${resultStyle}</strong></h2>
                 <p>${resultDesc}</p>
-                <p><small>✅ Результат сохранён. Вы увидите его на главной странице.</small></p>
+                <p><small>✅ Результат сохранён в вашем профиле и отправлен в Google Таблицу.</small></p>
                 <button onclick="location.reload()">Пройти заново</button>
+                <a href="index.html" class="button" style="margin-left: 1rem;">🏠 На главную</a>
             `;
         }
 
-        // Тёмная тема
         function toggleTheme() {
             document.body.classList.toggle('dark');
             const btn = document.querySelector('.theme-toggle');
